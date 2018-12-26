@@ -65,9 +65,14 @@ class PolyChaos():
         return msg
 
 
-    def __init__(self, dim, order, distrib, param):
+    def __init__(self, order, distrib, param):
+
+        # check input dimension
+        if len(distrib) != len(param):
+            raise ValueError('distrib and param must have the same length')
         
-        self.dim = dim
+        # assign main properties
+        self.dim = len(distrib)
         self.order = order
         self.distrib = distrib
         self.param = param
@@ -75,17 +80,15 @@ class PolyChaos():
 
         (self.nt,
          self.multi_index,
-         self.basis) = self.create_instance(dim, order, distrib)
+         self.basis) = self.create_instance(order, distrib)
     
 
-    def create_instance(self, dim, order, distrib):
+    def create_instance(self, order, distrib):
         """
         CREATE_INSTANCE creates and instance of the PolyChaos Class
 
         Paramaters
         ----------
-        dim (int) :
-            dimension of the multi-index
         order (int) :
             order of the polynom
         distrib (list):
@@ -107,7 +110,7 @@ class PolyChaos():
         """
 
         # generate multi index
-        multi_index, nt = self.generate_multi_index(dim, order)
+        multi_index, nt = self.generate_multi_index(order)
 
         # create multivariate polynomials basis 
         def basis(index, eps):
@@ -155,15 +158,13 @@ class PolyChaos():
         return nt, multi_index, basis
 
         
-    def generate_multi_index(self, dim, order):
+    def generate_multi_index(self, order):
         """
         GENERATE_MULTI_INDEX provides all multi-indexes [i1, i2, ..., i_dim] whose sum <= order.
         Based on Kaarnioja2013 (program C.2) and Gerstner2007 (algorithm 8.1.1)
 
         Parameters
         ----------
-        dim (int) :
-            dimension of the multi-index
         order (int) :
             order of the polynom
         
@@ -179,17 +180,17 @@ class PolyChaos():
         HISTORY:
         """
 
-        index = np.empty((0, dim), dtype=int)
+        index = np.empty((0, self.dim), dtype=int)
         cnt = 0
 
         for val in range(order + 1):
-            k = np.zeros(dim,dtype=int)
+            k = np.zeros(self.dim,dtype=int)
             khat = np.ones_like(k) * val    
             p = 0
 
-            while k[dim - 1] <= val:
+            while k[self.dim - 1] <= val:
                 if k[p] > khat[p]:
-                    if (p + 1) != dim:
+                    if (p + 1) != self.dim:
                         k[p] = 0
                         p += 1
                 else:
@@ -202,49 +203,3 @@ class PolyChaos():
                 k[p] = k[p] + 1
         
         return index, cnt
-
-
-if __name__ == "__main__":
-    from util import columnize
-    import matplotlib.pyplot as plt
-    from matplotlib import cm
-    from mpl_toolkits.mplot3d import Axes3D
-    plt.ion()
-
-    # parameters
-    dim = 2
-    order = 2
-    distrib = ['u', 'n']
-    param = [[-4,3],[1.2, 0.1]]
-
-    # generate PCE
-    poly = PolyChaos(dim, order, distrib, param)
-
-    # test basis 
-    npt = 100
-    x1 = np.linspace(-1,1,npt)
-    x2 = np.linspace(-3,3,npt)
-    X = np.concatenate(columnize(*np.meshgrid(x1,x2)), axis=1)
-    X1 = X[:,0].reshape(npt,npt)
-    X2 = X[:,1].reshape(npt,npt)
-    
-    # define grid
-    n1 = np.floor(np.sqrt(poly.nt))
-    n2 = np.ceil(poly.nt/n1)
-
-    h = plt.figure(figsize=(11,7))
-    for k in range(poly.nt):
-        ax = h.add_subplot(n1,n2,k+1, projection='3d')
-        y = poly.basis(k, X)
-        Y = y.reshape(npt,npt)
-        ax = h.gca(projection='3d')
-        ax.plot_surface(X1,X2,Y, cmap=cm.viridis, linewidth=0, antialiased=False)
-        ax.set_title(f'$\psi_{{ {k} }}$')
-        ax.text(-0.8, -7.5, ax.get_zlim()[0], 'x1', (1,1,0), fontsize=6)
-        #ax.set_xlabel('x1', fontsize=6)
-        ax.xaxis.set_label_coords(0, 0)
-        ax.set_ylabel('x2', fontsize=6)
-        ax.tick_params(labelsize=5)
-        plt.tight_layout()
-    
-    h.savefig(f'pce_basis_dim_{dim}_order_{order}',dpi=150)

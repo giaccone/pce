@@ -116,13 +116,16 @@ def quad_coeff(rule=5, kind='GL'):
 
 class PceSmolyakGrid():
     """
-    to do...
+    PCESMOLYAKGRID is a class to handle sparse Smolyak Grid in the framework
+    of the Polynomial Chaos Expansion.
+
+    AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+    DATE: 27.12.2018
+    HISTORY:
     """
 
     def __init__(self, polynom, level):
-        """
-        to do ...
-        """
+        
         (self.x,
          self.eps,
          self.weight,
@@ -197,7 +200,7 @@ class PceSmolyakGrid():
                 # change of variable
                 if (k.upper() == 'U'):
                     eps = np.copy(x0)
-                    w = np.copy(w0)
+                    w = np.copy(w0) * 0.5
                     if p != [-1, 1]:
                         x = (p[1] - p[0]) / 2 * x0 + (p[1] + p[0]) / 2
                     else:

@@ -81,6 +81,8 @@ class PolyChaos():
         self.param = param
         self.coeff = np.empty(0)
         self.grid = None
+        self.mu = None
+        self.sigma = None
 
         (self.nt,
          self.multi_index,
@@ -211,68 +213,119 @@ class PolyChaos():
 
     def norm_factor(self, multi_index):
         """
-        to do ...
+        NORM_FACTOR returns the normalization factor for the computation
+        of the PCE coefficients.
+
+        Parameters
+        ----------
+        multi_index (ndarray) :
+            multidimensional index related to the multivariate basis of the PCE
+
+        AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+        DATE: 29.12.2018
+        HISTORY:
         """
 
         factor = 1
         for k, index in enumerate(multi_index):
             if self.distrib[k].upper() == 'U':
-                factor = factor * (2 * index + 1) / 2
+                factor = factor * (2 * index + 1) / 1
             elif self.distrib[k].upper() == 'N':
                 factor = factor / np.math.factorial(index)
         
         return factor
 
     
-    def spectral_projection(self, fun, level):
+    def spectral_projection(self, fun, level, verbose='y'):
         """
-        to do ...
+        SPECTRAL_PROJECTION computes the PCE coefficient using the
+        spectral projection method.
+
+        Parameters
+        ----------
+        fun (function) :
+            python function to be analyzed
+        level (int) :
+            level of the integration (used to generate the Smolyak Grid)
+        verbose (str) :
+            flag to enable informative text (default is 'y', i.e. enabled)
+
+        AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+        DATE: 29.12.2018
+        HISTORY:
         """
 
         # create sparse grid
         # ------------------
-        t1 = timer()
-        print("* generation of smolyak sparse grid ... ", end=' ', flush=True)
+        if verbose == 'y':
+            t1 = timer()
+            print("* generation of smolyak sparse grid ... ", end=' ', flush=True)
         #
         self.grid = PceSmolyakGrid(self, level)
         #x, eps, weight, unique_x = smolyak_sparse_grid(self, level)
         #
-        t2 = timer()
-        tel, unit = utl.human_readable_time(t2 - t1)
-        print(f"done {tel :.3f} " + unit)
+        if verbose == 'y':
+            t2 = timer()
+            tel, unit = utl.human_readable_time(t2 - t1)
+            print(f"done {tel :.3f} " + unit)
 
         # evaluate function at unique points
         # ----------------------------------
-        t1 = timer()
-        print(f"* evaluation of the function at {self.grid.unique_x.shape[0]} unique points ... ", end=' ', flush=True)
+        if verbose == 'y':
+            t1 = timer()
+            print(f"* evaluation of the function at {self.grid.unique_x.shape[0]} unique points ... ", end=' ', flush=True)
         #
         unique_y = fun(self.grid.unique_x)
         #
-        t2 = timer()
-        tel, unit = utl.human_readable_time(t2 - t1)
-        print(f"done {tel :.3f} " + unit)
+        if verbose == 'y':
+            t2 = timer()
+            tel, unit = utl.human_readable_time(t2 - t1)
+            print(f"done {tel :.3f} " + unit)
         
         # evaluate function at all points
         # -------------------------------
-        t1 = timer()
-        print(f"* interpolation at {self.grid.x.shape[0]} points ... ", end=' ', flush=True)
-        #
+        if verbose == 'y':
+            t1 = timer()
+            print(f"* interpolation at {self.grid.x.shape[0]} points ... ", end=' ', flush=True)
+            #
         y = griddata(self.grid.unique_x, unique_y, self.grid.x, method='nearest')
         #
-        t2 = timer()
-        tel, unit = utl.human_readable_time(t2 - t1)
-        print(f"done {tel :.3f} " + unit)
+        if verbose == 'y':
+            t2 = timer()
+            tel, unit = utl.human_readable_time(t2 - t1)
+            print(f"done {tel :.3f} " + unit)
         
         # coefficient computation
         # -----------------------
-        t1 = timer()
-        print("* coefficient computation ... ", end=' ', flush=True)
+        if verbose == 'y':
+            t1 = timer()
+            print("* coefficient computation ... ", end=' ', flush=True)
         #
         self.coeff = np.zeros(self.nt)
         for k in range(self.nt):
             factor = self.norm_factor(self.multi_index[k])
-            self.coeff[k] = factor * np.sum(y * self.basis(k, self.grid.eps) * self.grid.weight)
+            self.coeff[k] = factor * np.sum(y.flatten() * self.basis(k, self.grid.eps).flatten() * self.grid.weight.flatten())
         #
-        t2 = timer()
-        tel, unit = utl.human_readable_time(t2 - t1)
-        print(f"done {tel :.3f} " + unit)
+        if verbose == 'y':
+            t2 = timer()
+            tel, unit = utl.human_readable_time(t2 - t1)
+            print(f"done {tel :.3f} " + unit)
+    
+
+    def norm_fit(self):
+        """
+        NORM_FIT computes 'mean' and 'standard deviation' using the
+        PCE coefficient
+
+        AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+        DATE: 29.12.2018
+        HISTORY:
+        """
+
+        # evaluation ation of the mean
+        self.mu = self.coeff[0]
+        
+        # evaluation ation of the standard deviation
+        c_quad = self.coeff[1:] ** 2
+        psi_quad = np.array([1/self.norm_factor(k) for k in self.multi_index[1:]])
+        self.sigma = np.sqrt(np.sum(c_quad * psi_quad))

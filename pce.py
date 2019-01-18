@@ -2,7 +2,7 @@ import numpy as np
 from scipy.special import legendre, hermitenorm
 from quad4pce import PceSmolyakGrid
 from scipy.interpolate import griddata
-import util as utl
+import util4pce as utl
 from timeit import default_timer as timer
 
 class PolyChaos():

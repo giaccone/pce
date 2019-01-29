@@ -312,7 +312,7 @@ class PolyChaos():
             print(f"done {tel :.3f} " + unit)
     
 
-    def norm_fit(self):
+    def norm_fit(self, plot='n'):
         """
         NORM_FIT computes 'mean' and 'standard deviation' using the
         PCE coefficient
@@ -329,3 +329,33 @@ class PolyChaos():
         c_quad = self.coeff[1:] ** 2
         psi_quad = np.array([1/self.norm_factor(k) for k in self.multi_index[1:]])
         self.sigma = np.sqrt(np.sum(c_quad * psi_quad))
+
+        if plot.lower() == 'y':
+            # import plot libraries
+            import matplotlib as mpl
+            import matplotlib.pyplot as plt
+            
+            # check if mpl is interactive
+            if not mpl.is_interactive():
+                plt.ion()
+
+            # create data
+            x = np.linspace(-4*self.sigma, 4*self.sigma, 501) + self.mu
+            y = 1 / np.sqrt(2 * np.pi * self.sigma**2) * np.exp(-(x - self.mu)**2 / (2 * self.sigma**2))
+
+            # plot
+            plt.plot(x, y , linewidth=2)
+            plt.xlabel('x', fontsize=14)
+            plt.ylabel('y', fontsize=14)
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
+            
+            # text box
+            ax = plt.gca()
+            props = dict(boxstyle='round', facecolor='white', alpha=0.9, linewidth=2)
+            ax.text(0.05, 0.95, f"$\mu={self.mu :.4f}$\n$\sigma={self.sigma  :.4f}$",
+                    verticalalignment='top', bbox=props, fontsize=14, transform=ax.transAxes)
+            
+            # set grid and layout
+            plt.grid()
+            plt.tight_layout()

@@ -344,6 +344,7 @@ class PolyChaos():
             y = 1 / np.sqrt(2 * np.pi * self.sigma**2) * np.exp(-(x - self.mu)**2 / (2 * self.sigma**2))
 
             # plot
+            hp = plt.figure()
             plt.plot(x, y , linewidth=2)
             plt.xlabel('x', fontsize=14)
             plt.ylabel('y', fontsize=14)
@@ -359,3 +360,6 @@ class PolyChaos():
             # set grid and layout
             plt.grid()
             plt.tight_layout()
+            
+            # return handle to plot
+            return hp

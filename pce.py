@@ -317,6 +317,11 @@ class PolyChaos():
         NORM_FIT computes 'mean' and 'standard deviation' using the
         PCE coefficient
 
+        Parameters
+        ----------
+        plot (str) :
+            'y' or 'n' to get the plot of the normal distribution (dafault is 'n')
+
         AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
         DATE: 29.12.2018
         HISTORY:
@@ -363,3 +368,42 @@ class PolyChaos():
             
             # return handle to plot
             return hp
+    
+
+    def evaluate(self, points):
+        """
+        EVALUATE uses the PCE to evaluate the function.
+
+        Parametres
+        ----------
+        points (ndarray) :
+            evaluation points in global coordinate
+        
+        Returns
+        -------
+        y (ndarray) :
+            value of the function at points
+
+        AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+        DATE: 06.02.2019
+        HISTORY:
+        """
+
+        # initialization
+        std_points = np.zeros_like(points)
+
+        # change of coordinates
+        for k, (dist, param) in enumerate(zip(self.distrib, self.param)):
+            if dist.upper() == 'U':
+                std_points[:, k] = (param[0] + param[1] - 2 * points[:, k]) / (param[0] - param[1])
+            elif dist.upper() == 'N':
+                std_points[:, k] = (points[:,k] -  param[0]) / param[1]
+        
+        for k in range(self.nt):
+            if k == 0:
+                y = self.coeff[k] * self.basis(k, std_points)
+            else:
+                y += self.coeff[k] * self.basis(k, std_points)
+        
+        return y
+        

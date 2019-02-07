@@ -327,10 +327,10 @@ class PolyChaos():
         HISTORY:
         """
 
-        # evaluation ation of the mean
+        # evaluation of the mean
         self.mu = self.coeff[0]
         
-        # evaluation ation of the standard deviation
+        # evaluation of the standard deviation
         c_quad = self.coeff[1:] ** 2
         psi_quad = np.array([1/self.norm_factor(k) for k in self.multi_index[1:]])
         self.sigma = np.sqrt(np.sum(c_quad * psi_quad))
@@ -389,21 +389,25 @@ class PolyChaos():
         HISTORY:
         """
 
-        # initialization
-        std_points = np.zeros_like(points)
+        if self.coeff.shape == (0, ):
+            import warnings
+            warnings.warn('PCE coeffiecients are not yet computed.')
+        else:            
+            # initialization
+            std_points = np.zeros_like(points)
 
-        # change of coordinates
-        for k, (dist, param) in enumerate(zip(self.distrib, self.param)):
-            if dist.upper() == 'U':
-                std_points[:, k] = (param[0] + param[1] - 2 * points[:, k]) / (param[0] - param[1])
-            elif dist.upper() == 'N':
-                std_points[:, k] = (points[:,k] -  param[0]) / param[1]
-        
-        for k in range(self.nt):
-            if k == 0:
-                y = self.coeff[k] * self.basis(k, std_points)
-            else:
-                y += self.coeff[k] * self.basis(k, std_points)
-        
-        return y
+            # change of coordinates
+            for k, (dist, param) in enumerate(zip(self.distrib, self.param)):
+                if dist.upper() == 'U':
+                    std_points[:, k] = (param[0] + param[1] - 2 * points[:, k]) / (param[0] - param[1])
+                elif dist.upper() == 'N':
+                    std_points[:, k] = (points[:,k] -  param[0]) / param[1]
+            
+            for k in range(self.nt):
+                if k == 0:
+                    y = self.coeff[k] * self.basis(k, std_points)
+                else:
+                    y += self.coeff[k] * self.basis(k, std_points)
+            
+            return y
         

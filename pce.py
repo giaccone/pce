@@ -322,6 +322,11 @@ class PolyChaos():
         plot (str) :
             'y' or 'n' to get the plot of the normal distribution (dafault is 'n')
 
+        Returns
+        -------
+        hp (Figure) :
+            handle to figure.
+        
         AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
         DATE: 29.12.2018
         HISTORY:
@@ -369,6 +374,61 @@ class PolyChaos():
             # return handle to plot
             return hp
     
+
+    def sobol(self, index):
+        """
+        SOBOL computes the Sobol' indices for a given PCE expansion.
+
+        Paramaters
+        ----------
+        index (list) :
+            list with index, e.g. [1,2] for having S12, [[1], [1,2,3]] for
+            having S1 and S123
+        
+        Returns
+        -------
+        S (float or list) :
+            foalt in case of only one index computed,
+            list in case of more than one index computed.
+
+        AUTHOR: Luca Giaccone (luca.giaccone@polito.it)
+        DATE: 11.02.2019
+        HISTORY:
+        """
+        
+        # check precedences
+        if self.sigma is None:
+            raise ValueError("norm_fit() must be called before sobol() can be executed")
+
+        # handle input type
+        if not isinstance(index[0], (list, tuple)):
+            index = [index]
+        
+        sobol = []
+        for idx in index:
+            # create complementary index
+            zero_based_index = [k - 1 for k in idx]
+            all_index = np.array(range(len(self.distrib)))
+            other_index = np.setdiff1d(all_index, zero_based_index)
+
+            # find elements
+            coeff_index = np.array([True] * (self.multi_index.shape[0] - 1))
+            for ele in zero_based_index:
+                coeff_index = coeff_index * (self.multi_index[1:, ele] != 0)
+            for ele in other_index:
+                coeff_index = coeff_index * (self.multi_index[1:, ele] == 0)
+            
+            # computation of the index
+            c_quad = self.coeff[1:] ** 2
+            psi_quad = np.array([1/self.norm_factor(k) for k in self.multi_index[1:]])
+            sobol.append(np.sum(c_quad[coeff_index] * psi_quad[coeff_index]) / (self.sigma ** 2))
+        
+        # prepare output type
+        if len(sobol) == 1:
+            sobol = sobol[0]
+        
+        return sobol
+
 
     def evaluate(self, points):
         """

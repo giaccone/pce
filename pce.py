@@ -286,9 +286,9 @@ class PolyChaos():
         # -------------------------------
         if verbose == 'y':
             t1 = timer()
-            print(f"* interpolation at {self.grid.x.shape[0]} points ... ", end=' ', flush=True)
+            print(f"* build complete function output ({self.grid.x.shape[0]} points) ... ", end=' ', flush=True)
             #
-        y = griddata(self.grid.unique_x, unique_y, self.grid.x, method='nearest')
+        y = unique_y[self.grid.inverse_index, ...]
         #
         if verbose == 'y':
             t2 = timer()

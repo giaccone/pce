@@ -129,7 +129,8 @@ class PceSmolyakGrid():
         (self.x,
          self.eps,
          self.weight,
-         self.unique_x) = self.smolyak_sparse_grid(polynom, level)
+         self.unique_x,
+         self.inverse_index) = self.smolyak_sparse_grid(polynom, level)
 
 
     def smolyak_sparse_grid(self, polynom, level):
@@ -222,9 +223,9 @@ class PceSmolyakGrid():
             weights = np.concatenate((weights, coeff * np.prod(np.concatenate(columnize(*np.meshgrid(*local_w)), axis=1),axis=1)))
         
         # get unique points
-        unique_x_points = np.unique(x_points, axis=0)
+        unique_x_points, inverse_index = np.unique(x_points, axis=0, return_inverse=True)
 
-        return x_points, eps_points, weights, unique_x_points
+        return x_points, eps_points, weights, unique_x_points, inverse_index
 
 
     def index_with_sum(self, dim, val):

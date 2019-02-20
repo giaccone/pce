@@ -3,6 +3,7 @@ from scipy.special import legendre, hermitenorm
 from quad4pce import PceSmolyakGrid
 import util4pce as utl
 from timeit import default_timer as timer
+from joblib import Parallel, delayed
 
 class PolyChaos():
     """
@@ -299,11 +300,14 @@ class PolyChaos():
         if verbose == 'y':
             t1 = timer()
             print("* coefficient computation ... ", end=' ', flush=True)
-        #
-        self.coeff = np.zeros(self.nt)
-        for k in range(self.nt):
+        
+        # function to compute the k-th coefficient
+        def compute_k_coeff(k):
             factor = self.norm_factor(self.multi_index[k])
-            self.coeff[k] = factor * np.sum(y.flatten() * self.basis(k, self.grid.eps).flatten() * self.grid.weight.flatten())
+            return factor * np.sum(y.flatten() * self.basis(k, self.grid.eps).flatten() * self.grid.weight.flatten())
+        # parallel computation of all coefficients
+        coeff = Parallel(n_jobs=-1, verbose=0)(map(delayed(compute_k_coeff), range(self.nt)))
+        self.coeff = np.array(coeff)
         #
         if verbose == 'y':
             t2 = timer()

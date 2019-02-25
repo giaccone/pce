@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import legendre, hermitenorm
-from quad4pce import PceSmolyakGrid
-import util4pce as utl
+from pce.quad4pce import PceSmolyakGrid
+import pce.util4pce as utl
 from timeit import default_timer as timer
 from joblib import Parallel, delayed
 

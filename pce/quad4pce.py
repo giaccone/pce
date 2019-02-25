@@ -1,5 +1,5 @@
 import numpy as np
-from util4pce import columnize
+from pce.util4pce import columnize
 from scipy.special import binom
 
 

@@ -3,4 +3,7 @@
 __pycache__/
 *.pdf
 *.txt
-
+dist/
+build/
+*.egg-info
+*.egg

@@ -12,7 +12,7 @@ At the moment, one can use this module to study the uncertainty propagation of a
 
 ## Requirements
 
-The current version is developed using python 3.7.2 but it is not strictly necessary to use the very latest python version.
+The current version is tested with python 3.7.7 and 3.8.3 but it is not strictly necessary to use the very latest Python version.
 
 Other requirements (I tend to use always the latest version of the following libraries):
 
@@ -20,3 +20,11 @@ Other requirements (I tend to use always the latest version of the following lib
 * scipy
 * matplotlib
 * joblib
+
+# Installation
+
+This project is deployed throug the Python Package Index, therefore, it can be easily obtained bu rinning the following command:
+
+```bash
+pip install pce
+```

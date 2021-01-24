@@ -11,7 +11,7 @@ with open("README.md", 'r') as fh:
 # create setup
 setuptools.setup(
     name = "pce",
-    version = "0.1.0",
+    version = "0.1.1",
     author = "Luca Giaccone",
     author_email = "luca.giaccone@polito.it",
     description = "Polynomial Chaos Expansion method",

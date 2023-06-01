@@ -11,11 +11,13 @@ At the moment, one can use this module to study the uncertainty propagation of a
 * global sensitivity analysis with Sobol' indices
 
 ## 1.2 How can I use it? How can I cite this module?
-If you use this module you can consider to cite the following paper [direct link](https://www.mdpi.com/2079-9292/9/9/1471).
+If you use this module you can consider to cite the following papers:
 
-*Giaccone, L.; Lazzeroni, P.; Repetto, M. Uncertainty Quantification in Energy Management Procedures. Electronics 2020, 9, 1471. https://doi.org/10.3390/electronics9091471*
+[1] Luca Giaccone, *"Uncertainty quantification in the assessment of human exposure to pulsed or multi-frequency fields"*, Physics in Medicine & Biology, [10.1088/1361-6560/acc924](https://doi.org/10.1088/1361-6560/acc924)
 
-In this paper the `pce` module has been used successfully to estimate uncertainties. You can also find all codes associated to the paper here [https://github.com/giaccone/cogen_eval](https://github.com/giaccone/cogen_eval).
+[2] Giaccone, L.; Lazzeroni, P.; Repetto, M. Uncertainty Quantification in Energy Management Procedures. Electronics 2020, 9, 1471. [https://doi.org/10.3390/electronics9091471](https://doi.org/10.3390/electronics9091471)
+
+In [1] the `pce` is used to estimate the uncertainty associated to methods for the assessment of pulsed magnetic or electric fields. You can also find all codes associated to the paper here [https://github.com/giaccone/wpm_uncertainty](https://github.com/giaccone/wpm_uncertainty). In [2] the `pce` module has been used successfully to estimate uncertainties. You can also find all codes associated to the paper here [https://github.com/giaccone/cogen_eval](https://github.com/giaccone/cogen_eval).
 
 ## 1.3 Requirements
 
